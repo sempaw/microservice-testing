@@ -1,16 +1,29 @@
+from typing import Optional
 from pydantic import BaseModel
 
-from .request import Request
-from .response import Response
+
+class ContractBase(BaseModel):
+    token: str
+    data: dict
 
 
-# TODO: contract as dict or as basemodel
-class Contract(BaseModel):
-    producer: str
-    consumer: str
-    contract: dict
-    request: Request
-    response: Response
+class ContractCreate(ContractBase):
+    ...
 
-    class Config(object):
+
+class ContractUpdate(ContractBase):
+    ...
+
+
+class ContractInDBBase(ContractBase):
+    id: Optional[int] = None
+    consumer_id: Optional[int] = None
+    spec_id: Optional[int] = None
+
+    class Config:
         orm_mode = True
+
+
+class Contract(ContractInDBBase):
+    pass
+
