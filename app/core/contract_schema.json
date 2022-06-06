@@ -1,0 +1,146 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "consumer": { "type": "string"},
+      "provider": { "type": "string"},
+      "http_interactions": {
+        "type": "array",
+        "items": [
+            {
+                "type": "object",
+                "properties": {
+                    "request": {
+                        "type":"object",
+                        "properties": {
+                            "method": {
+                                "type": "string",
+                                "pattern": "GET|HEAD|POST|PUT|DELETE|PATCH",
+                                "$comment" :"TODO: CONNECT, OPTIONS, TRACE"
+                            },
+                            "url": {
+                                "$comment": "TODO: url pattern",
+                                "type": "string",
+                                "pattern": ".*"
+                            },
+                            "headers": {
+                                "type": "object",
+                                "propertyNames": {
+                                    "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                                },
+                                "$comment": "TODO: property and pattern",
+                                "patternProperties": {
+                                    "": {
+                                        "type": "array",
+                                        "items": [
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                    }
+                                }
+                            },
+                            "body": {
+                                "type": "object",
+                                "properties": {
+                                    "encoding": {
+                                        "type": "string"
+                                    },
+                                    "string": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                  "encoding",
+                                  "string"
+                                ]
+                            }                          
+                        },
+                        "required": [
+                            "method",
+                            "url",
+                            "headers",
+                            "body"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "response":{
+                        "type":"object",
+                        "properties": {
+                            "status": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {
+                                        "type": "integer"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "code",
+                                    "message"
+                                ]
+                            },
+                            "url": {
+                                "$comment": "TODO: url pattern",
+                                "type": "string",
+                                "pattern": ".*"
+                            },
+                            "headers": {
+                                "type": "object",
+                                "propertyNames": {
+                                    "pattern": "^[A-Za-z][A-Za-z0-9-]*$"
+                                },
+                                "$comment": "TODO: property and pattern",
+                                "properties": {
+                                    "": {
+                                        "type": "array",
+                                        "items": [
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                    }
+                                }
+                                
+                            },
+                            "body": {
+                                "type": "object",
+                                "properties": {
+                                    "encoding": {
+                                        "type": ["string", "null"]
+                                    },
+                                    "string": {
+                                        "type": ["string", "null"]
+                                    }
+                                },
+                                "required": [
+                                  "encoding",
+                                  "string"
+                                ]
+                            }                              
+                        },
+                        "required": [
+                            "status",
+                            "url",
+                            "headers",
+                            "body"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "request",
+                    "response"
+                ]
+            }
+        ]
+      }
+    },
+    "required": [
+      "http_interactions",
+      "consumer",
+      "provider"
+    ]
+  }
