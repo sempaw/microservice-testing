@@ -35,12 +35,12 @@ async def get_by_id(*, contract_id: int, db: Session = Depends(deps.get_db)) -> 
     """
     Fetch a single contract by ID
     """
+    # service.get
     return repository.get(obj_id=contract_id, db=db)
 
 
-# TODO: does router supports routes only or auth and validation as well?
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def post(contract: Contract, db: Session = Depends(deps.get_db)) -> ContractModel:
+async def post(*, contract: Contract, db: Session = Depends(deps.get_db)) -> ContractModel:
     """
     Post new contract
     """
@@ -54,7 +54,7 @@ async def post(contract: Contract, db: Session = Depends(deps.get_db)) -> Contra
 
 
 @router.put('/{contract_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def update(contract: Contract, contract_id: int, db: Session = Depends(deps.get_db)):
+async def update(*, contract: Contract, contract_id: int, db: Session = Depends(deps.get_db)):
     """
     Update whole contract by ID
     """
@@ -68,7 +68,7 @@ async def update(contract: Contract, contract_id: int, db: Session = Depends(dep
 
 
 @router.delete('/{contract_id}')
-async def delete(contract_id: int, db: Session = Depends(deps.get_db)):
+async def delete(*, contract_id: int, db: Session = Depends(deps.get_db)):
     """
     Delete contract by ID
     """

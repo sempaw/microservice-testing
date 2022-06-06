@@ -2,8 +2,8 @@ import logging
 from sqlalchemy.orm import Session
 
 from app import repositories, schemas
-from . import base  # noqa: F401
-from ..data import CONTRACTS, SPECS
+from app.db import base  # noqa: F401
+from app.data import CONTRACTS, SPECS
 
 logger = logging.getLogger(__name__)
 

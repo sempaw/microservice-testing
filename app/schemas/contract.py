@@ -15,6 +15,8 @@ class ContractUpdate(ContractBase):
     ...
 
 
+
+
 class ContractInDBBase(ContractBase):
     id: Optional[int] = None
     consumer_id: Optional[int] = None
@@ -26,4 +28,3 @@ class ContractInDBBase(ContractBase):
 
 class Contract(ContractInDBBase):
     pass
-

@@ -1,4 +1,4 @@
-from base_repository import BaseRepository
+from .base_repository import BaseRepository
 from app.models.contract import Contract
 from app.schemas.contract import ContractCreate, ContractUpdate
 
