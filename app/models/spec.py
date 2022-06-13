@@ -4,16 +4,14 @@ from ..db.base_class import Base
 
 
 class Spec(Base):
-    __tablename__ = "spec"
     id = Column(Integer, primary_key=True, index=True)
     provider_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     provider = relationship("User", back_populates="specs")
     token = Column(String, nullable=False, unique=True)
     data = Column(PickleType, nullable=False)
-    contracts_by_spec = relationship("Contract", backref="spec")
-    # contracts_by_spec = relationship(
-    #     "Contract",
-    #     cascade="all,delete-orphan",
-    #     back_populates="spec",
-    #     uselist=True
-    # )
+    contracts_by_spec = relationship(
+        "Contract",
+        cascade="all,delete-orphan",
+        back_populates="spec",
+        uselist=True
+    )

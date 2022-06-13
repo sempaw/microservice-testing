@@ -3,7 +3,7 @@ import yaml
 import os
 from jsonschema import validate
 from urllib.parse import urlparse
-from exceptions import ValidationException
+from app.exceptions.validation_exception import ValidationException
 
 #  code as newspaper
 # типизация mypy
