@@ -3,7 +3,7 @@ from fastapi import APIRouter, status, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from app import deps
-from app.core.contract_validator import ContractValidator
+from app.core.contract_validator import validate_contract
 from app.schemas.contract import Contract
 from app.models.contract import Contract as ContractModel
 from app.exceptions.not_found_exception import NotFoundException
@@ -45,7 +45,7 @@ async def post(*, contract: Contract, db: Session = Depends(deps.get_db)) -> Con
     Post new contract
     """
     try:
-        ContractValidator.validate_contract(contract.data)
+        validate_contract(data=contract.data)
         return repository.create(obj_in=contract, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -59,8 +59,9 @@ async def update(*, contract: Contract, contract_id: int, db: Session = Depends(
     Update whole contract by ID
     """
     try:
-        ContractValidator.validate_contract(contract.data)
-        repository.update(obj_id=contract_id, obj_in=contract, db=db)
+        validate_contract(contract.data)
+        db_obj = repository.get(db=db, obj_id=contract_id)
+        repository.update(db_obj=db_obj, obj_in=contract, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:
@@ -72,4 +73,4 @@ async def delete(*, contract_id: int, db: Session = Depends(deps.get_db)):
     """
     Delete contract by ID
     """
-    repository.delete(obj_id=contract_id, db=db)
+    repository.remove(obj_id=contract_id, db=db)

@@ -8,11 +8,15 @@ class SpecBase(BaseModel):
 
 
 class SpecCreate(SpecBase):
-    ...
+    token: str
+    data: dict
+    provider_id: int
 
 
 class SpecUpdate(SpecBase):
-    ...
+    token: str
+    data: dict
+    provider_id: int
 
 
 class SpecInDBBase(SpecBase):

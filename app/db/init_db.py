@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from app import repositories, schemas
 from app.db import base  # noqa: F401
 from app.data import CONTRACTS, SPECS
+from app.db.base_class import Base
+from app.db.session import engine
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +14,7 @@ FIRST_SUPERUSER = "admin"
 
 def init_db(db: Session) -> None:
     # To create tables manually uncomment following line
-    # Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
     if FIRST_SUPERUSER:
         user = repositories.user.get_by_login(db, login=FIRST_SUPERUSER)
         if not user:
@@ -35,8 +37,8 @@ def init_db(db: Session) -> None:
                     token=spec["token"],
                     data=spec["data"]
                 )
-                repositories.spec.create(db, obj_in=spec_in)
-        if not user.contracts_by_user:
+                repositories.spec.create(db=db, obj_in=spec_in)
+        if not user.contracts:
             for contract in CONTRACTS:
                 contract_in = schemas.ContractCreate(
                     token=contract["token"],

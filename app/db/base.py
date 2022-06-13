@@ -1,5 +1,5 @@
-from app.db.base_class import Base
-from app.models.contract import Contract
-from app.models.spec import Spec
-from app.models.user import User
+from app.db.base_class import Base  # noqa
+from app.models.contract import Contract  # noqa
+from app.models.spec import Spec  # noqa
+from app.models.user import User  # noqa
 
