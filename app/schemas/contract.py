@@ -17,8 +17,6 @@ class ContractCreate(ContractBase):
 class ContractUpdate(ContractBase):
     token: str
     data: dict
-    consumer_id: int
-    spec_id: int
 
 
 class ContractInDBBase(ContractBase):

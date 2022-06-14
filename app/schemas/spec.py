@@ -5,18 +5,20 @@ from pydantic import BaseModel
 class SpecBase(BaseModel):
     token: str
     data: dict
+    is_deprecated: bool
 
 
 class SpecCreate(SpecBase):
     token: str
     data: dict
     provider_id: int
+    is_deprecated: bool
 
 
 class SpecUpdate(SpecBase):
     token: str
     data: dict
-    provider_id: int
+    is_deprecated: bool
 
 
 class SpecInDBBase(SpecBase):

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, PickleType, ForeignKey
+from sqlalchemy import Column, Integer, String, PickleType, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from ..db.base_class import Base
 
@@ -8,6 +8,7 @@ class Spec(Base):
     provider_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     provider = relationship("User", back_populates="specs")
     token = Column(String, nullable=False, unique=True)
+    is_deprecated = Column(Boolean, nullable=False, default=False)
     data = Column(PickleType, nullable=False)
     contracts_by_spec = relationship(
         "Contract",
