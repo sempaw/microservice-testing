@@ -1,15 +1,15 @@
 from typing import List, Optional
-from fastapi import APIRouter, status, HTTPException, Depends
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core import deps
 from app.core.contract_validator import validate_contract
-from app.schemas.contract import Contract, ContractUpdate, ContractCreate
-from app.models.contract import Contract as ContractModel
 from app.exceptions.not_found_exception import NotFoundException
 from app.exceptions.validation_exception import ValidationException
+from app.models.contract import Contract as ContractModel
 from app.repositories.contracts_repository import contract as repository
-
+from app.schemas.contract import Contract, ContractCreate, ContractUpdate
 
 router = APIRouter(
     prefix="/contracts",

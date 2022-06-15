@@ -1,5 +1,7 @@
 from pathlib import Path
+
 from fastapi import FastAPI
+
 from app.api import api
 
 ROOT = Path(__file__).resolve().parent.parent

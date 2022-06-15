@@ -4,7 +4,6 @@ from fastapi.exceptions import RequestValidationError
 
 from app.core.token import Token
 
-
 # TODO: move into services/routers + перелопатить все нафиг
 # TODO: auth as token or payload
 _tokens = ['', 'test', 'admin', 'token']

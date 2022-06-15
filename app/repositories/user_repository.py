@@ -2,8 +2,8 @@ from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Session
 
-from app.repositories.base_repository import BaseRepository
 from app.models.user import User as UserModel
+from app.repositories.base_repository import BaseRepository
 from app.schemas.user import UserCreate, UserUpdate
 
 

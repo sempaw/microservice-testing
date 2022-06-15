@@ -1,8 +1,10 @@
 import json
-import yaml
 import os
-from jsonschema import validate
 from urllib.parse import urlparse
+
+import yaml
+from jsonschema import validate
+
 from app.exceptions.validation_exception import ValidationException
 
 #  code as newspaper

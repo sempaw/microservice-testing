@@ -1,14 +1,15 @@
 from typing import List, Optional
-from fastapi import APIRouter, status, HTTPException, Depends
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core import deps
 from app.core.spec_validator import validate_spec
 from app.exceptions.not_found_exception import NotFoundException
 from app.exceptions.validation_exception import ValidationException
-from app.schemas import Spec, SpecCreate
-from app.repositories.spec_repository import spec as repository
 from app.models.spec import Spec as SpecModel
+from app.repositories.spec_repository import spec as repository
+from app.schemas import Spec, SpecCreate
 from app.schemas.spec import SpecUpdate
 
 router = APIRouter(

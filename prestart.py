@@ -1,9 +1,8 @@
 import subprocess
 import sys
 
-from alembic.config import Config
 from alembic import command
-
+from alembic.config import Config
 from app.main import ROOT
 
 

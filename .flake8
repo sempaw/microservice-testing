@@ -1,0 +1,5 @@
+[flake8]
+exclude = .git,migrations
+max-line-length=90
+max-complexity=10
+ignore = E203, E501, W503, B306
