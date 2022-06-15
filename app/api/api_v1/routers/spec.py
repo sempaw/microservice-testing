@@ -19,8 +19,8 @@ router = APIRouter(prefix="/specs", tags=["specs"])
 @router.get("/", status_code=status.HTTP_200_OK)
 async def get_all(
     *,
-    skip: int = 0,
-    limit: int = 0,
+    skip: Optional[int] = None,
+    limit: Optional[int] = None,
     db: Session = Depends(deps.get_db),
 ) -> List[SpecModel]:
     """
