@@ -1,3 +1,3 @@
-from .contract import Contract, ContractCreate
-from .spec import Spec, SpecCreate
-from .user import User, UserCreate
+from .contract import Contract, ContractCreate  # noqa
+from .spec import Spec, SpecCreate  # noqa
+from .user import User, UserCreate  # noqa

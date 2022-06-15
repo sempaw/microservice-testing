@@ -17,6 +17,7 @@ isort = "^5.10.1"
 black = "^22.3.0"
 pre-commit = "^2.19.0"
 flake8 = "^4.0.1"
+mypy = "^0.961"
 
 [tool.poetry.dev-dependencies]
 

@@ -8,6 +8,7 @@ from app.db import base  # noqa: F401
 from app.db.base_class import Base
 from app.db.session import engine
 
+
 logger = logging.getLogger(__name__)
 
 FIRST_SUPERUSER = "admin"
@@ -15,7 +16,7 @@ FIRST_SUPERUSER = "admin"
 
 def init_db(db: Session) -> None:
     # To create tables manually uncomment following line
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)  # type: ignore
     if FIRST_SUPERUSER:
         user = repositories.user.get_by_login(db, login=FIRST_SUPERUSER)
         if not user:
@@ -34,9 +35,7 @@ def init_db(db: Session) -> None:
         if not user.specs:
             for spec in SPECS:
                 spec_in = schemas.SpecCreate(
-                    provider_id=user.id,
-                    token=spec["token"],
-                    data=spec["data"]
+                    provider_id=user.id, token=spec["token"], data=spec["data"]
                 )
                 repositories.spec.create(db=db, obj_in=spec_in)
         if not user.contracts:
@@ -45,7 +44,7 @@ def init_db(db: Session) -> None:
                     token=contract["token"],
                     data=contract["data"],
                     consumer_id=user.id,
-                    spec_id=contract["spec_id"]
+                    spec_id=contract["spec_id"],
                 )
                 repositories.contract.create(db, obj_in=contract_in)
     else:

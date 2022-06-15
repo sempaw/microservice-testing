@@ -9,21 +9,19 @@ from app.exceptions.not_found_exception import NotFoundException
 from app.exceptions.validation_exception import ValidationException
 from app.models.contract import Contract as ContractModel
 from app.repositories.contracts_repository import contract as repository
-from app.schemas.contract import Contract, ContractCreate, ContractUpdate
+from app.schemas.contract import ContractCreate, ContractUpdate
 
-router = APIRouter(
-    prefix="/contracts",
-    tags=["contracts"]
-)
+
+router = APIRouter(prefix="/contracts", tags=["contracts"])
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def get_all(
-        *,
-        skip: Optional[int] = None,
-        limit: Optional[int] = None,
-        db: Session = Depends(deps.get_db),
-) -> List[Contract]:
+    *,
+    skip: int = 0,
+    limit: int = 0,
+    db: Session = Depends(deps.get_db),
+) -> List[ContractModel]:
     """
     Fetch all contracts
     """
@@ -36,7 +34,9 @@ async def get_all(
 
 
 @router.get("/{contract_id}", status_code=status.HTTP_200_OK)
-async def get_by_id(*, contract_id: int, db: Session = Depends(deps.get_db)) -> Contract:
+async def get_by_id(
+    *, contract_id: int, db: Session = Depends(deps.get_db)
+) -> Optional[ContractModel]:
     """
     Fetch a single contract by ID
     """
@@ -50,7 +50,9 @@ async def get_by_id(*, contract_id: int, db: Session = Depends(deps.get_db)) -> 
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def post(*, contract: ContractCreate, db: Session = Depends(deps.get_db)) -> ContractModel:
+async def post(
+    *, contract: ContractCreate, db: Session = Depends(deps.get_db)
+) -> ContractModel:
     """
     Post new contract
     """
@@ -66,14 +68,19 @@ async def post(*, contract: ContractCreate, db: Session = Depends(deps.get_db)) 
 
 
 @router.put('/{contract_id}', status_code=status.HTTP_200_OK)
-async def update(*, contract: ContractUpdate, contract_id: int, db: Session = Depends(deps.get_db)) -> ContractModel:
+async def update(
+    *, contract: ContractUpdate, contract_id: int, db: Session = Depends(deps.get_db)
+) -> ContractModel:
     """
     Update whole contract by ID
     """
     try:
         validate_contract(contract.data)
         db_obj = repository.get(db=db, obj_id=contract_id)
-        return repository.update(db_obj=db_obj, obj_in=contract, db=db)
+        if db_obj is None:
+            raise NotFoundException("Unable to find contract with given ID")
+        else:
+            return repository.update(db_obj=db_obj, obj_in=contract, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:

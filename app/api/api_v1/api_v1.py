@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from .routers import contract, spec
 
+
 router = APIRouter(
     prefix="/v1",
 )

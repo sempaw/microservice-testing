@@ -11,14 +11,8 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)
     token = Column(String, nullable=False)
     contracts = relationship(
-        "Contract",
-        cascade="all,delete-orphan",
-        back_populates="consumer",
-        uselist=True
+        "Contract", cascade="all,delete-orphan", back_populates="consumer", uselist=True
     )
     specs = relationship(
-        "Spec",
-        cascade="all,delete-orphan",
-        back_populates="provider",
-        uselist=True
+        "Spec", cascade="all,delete-orphan", back_populates="provider", uselist=True
     )

@@ -12,8 +12,5 @@ class Spec(Base):
     is_deprecated = Column(Boolean, nullable=False, default=False)
     data = Column(PickleType, nullable=False)
     contracts_by_spec = relationship(
-        "Contract",
-        cascade="all,delete-orphan",
-        back_populates="spec",
-        uselist=True
+        "Contract", cascade="all,delete-orphan", back_populates="spec", uselist=True
     )
