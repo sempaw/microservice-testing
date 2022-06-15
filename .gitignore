@@ -132,3 +132,4 @@ dmypy.json
 .idea/
 example.db
 /node_modules/
+git
