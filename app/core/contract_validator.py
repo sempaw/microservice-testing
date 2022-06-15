@@ -1,14 +1,10 @@
+import json
+import os
 from urllib.parse import urlparse
 
 from jsonschema import validate
 
 from app.exceptions.validation_exception import ValidationException
-
-
-#  code as newspaper
-# типизация mypy
-# precommit hook git on linters
-# conventional comments
 
 
 def validate_by_schema(contract_file, schema_file):
@@ -64,19 +60,17 @@ def validate_by_spec(contract_file, spec_file):
 
 
 def _read_file(file_name):
-    return None
-
-
-#     with open(file_name) as stream:
-#         if os.path.splitext(file_name)[1] == '.yaml':
-#             file = yaml.safe_load(stream)
-#         elif os.path.splitext(file_name)[1] == '.json':
-#             file = json.load(stream)
-#         else:
-#             raise ValidationException(
-#                 f'File "{file_name}" has inappropriate file extension'
-#             )
-#         return file
+    with open(file_name) as stream:
+        # if os.path.splitext(file_name)[1] == '.yaml':
+        #     file = yaml.safe_load(stream)
+        # elif
+        if os.path.splitext(file_name)[1] == '.json':
+            file = json.load(stream)
+        else:
+            raise ValidationException(
+                f'File "{file_name}" has inappropriate file extension'
+            )
+        return file
 
 
 def validate_contract(data: dict):
