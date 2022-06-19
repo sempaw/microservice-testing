@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.db.base_class import Base
+from app.settings.route_settings import LIMIT_ENTITIES_DB_QUERY
 
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -26,7 +27,11 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db.query(self.model).filter(self.model.id == obj_id).first()
 
     def get_multi(
-        self, db: Session, *, skip: Optional[int] = 0, limit: Optional[int] = 100
+        self,
+        db: Session,
+        *,
+        skip: Optional[int] = 0,
+        limit: Optional[int] = LIMIT_ENTITIES_DB_QUERY
     ) -> List[ModelType]:
         return db.query(self.model).offset(skip).limit(limit).all()
 

@@ -35,7 +35,10 @@ def init_db(db: Session) -> None:
         if not user.specs:
             for spec in SPECS:
                 spec_in = schemas.SpecCreate(
-                    provider_id=user.id, token=spec["token"], data=spec["data"]
+                    provider_id=user.id,
+                    token=spec["token"],
+                    data=spec["data"],
+                    is_deprecated=spec["is_deprecated"],
                 )
                 repositories.spec.create(db=db, obj_in=spec_in)
         if not user.contracts:
