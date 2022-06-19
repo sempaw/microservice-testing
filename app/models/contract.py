@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, PickleType, String
+from sqlalchemy import JSON, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..db.base_class import Base
@@ -12,4 +12,4 @@ class Contract(Base):
     spec_id = Column(Integer, ForeignKey("spec.id"), nullable=False)
     spec = relationship("Spec", back_populates="contracts_by_spec")
     token = Column(String, nullable=False, unique=True)
-    data = Column(PickleType, nullable=False)
+    data = Column(JSON, nullable=False)

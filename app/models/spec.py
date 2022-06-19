@@ -1,7 +1,7 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, PickleType, String
+from sqlalchemy import JSON, Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..db.base_class import Base
+from app.db.base_class import Base
 
 
 class Spec(Base):
@@ -10,7 +10,7 @@ class Spec(Base):
     provider = relationship("User", back_populates="specs")
     token = Column(String, nullable=False, unique=True)
     is_deprecated = Column(Boolean, nullable=False, default=False)
-    data = Column(PickleType, nullable=False)
+    data = Column(JSON, nullable=False)
     contracts_by_spec = relationship(
         "Contract", cascade="all,delete-orphan", back_populates="spec", uselist=True
     )
