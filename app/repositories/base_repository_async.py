@@ -22,7 +22,7 @@ class BaseRepositoryAsync(Generic[ModelType, CreateSchemaType, UpdateSchemaType]
     async def get(self, db: AsyncSession, obj_id: int) -> ModelType:
         stmt = select(self.model).where(self.model.id == obj_id)
         result = await db.execute(stmt)
-        obj = result.scal
+        obj = result.scalars().first()
         if obj is None:
             raise NotFoundException("Unable to find contract with given ID")
         return obj
