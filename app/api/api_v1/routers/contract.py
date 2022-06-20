@@ -1,14 +1,14 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import deps
 from app.core.contract_validator import validate_contract
 from app.exceptions.not_found_exception import NotFoundException
 from app.exceptions.validation_exception import ValidationException
 from app.models.contract import Contract as ContractModel
-from app.repositories.contracts_repository import contract as repository
+from app.repositories.contract_repository_async import contract as repository_async
 from app.schemas.contract import ContractCreate, ContractUpdate
 
 
@@ -16,17 +16,17 @@ router = APIRouter(prefix="/contracts", tags=["contracts"])
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
-async def get_all(
+async def get_multi(
     *,
     skip: Optional[int] = None,
     limit: Optional[int] = None,
-    db: Session = Depends(deps.get_db),
+    db: AsyncSession = Depends(deps.get_db_async),  # noqa
 ) -> List[ContractModel]:
     """
     Fetch all contracts
     """
     try:
-        return repository.get_multi(skip=skip, limit=limit, db=db)
+        return await repository_async.get_multi(skip=skip, limit=limit, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -35,14 +35,14 @@ async def get_all(
 
 @router.get("/{contract_id}", status_code=status.HTTP_200_OK)
 async def get_by_id(
-    *, contract_id: int, db: Session = Depends(deps.get_db)
+    *, contract_id: int, db: AsyncSession = Depends(deps.get_db_async)  # noqa
 ) -> Optional[ContractModel]:
     """
     Fetch a single contract by ID
     """
     # service.get
     try:
-        return repository.get(obj_id=contract_id, db=db)
+        return await repository_async.get(obj_id=contract_id, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -51,14 +51,14 @@ async def get_by_id(
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post(
-    *, contract: ContractCreate, db: Session = Depends(deps.get_db)
+    *, contract: ContractCreate, db: AsyncSession = Depends(deps.get_db_async)  # noqa
 ) -> ContractModel:
     """
     Post new contract
     """
     try:
         validate_contract(data=contract.data)
-        return repository.create(obj_in=contract, db=db)
+        return await repository_async.create(obj_in=contract, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:
@@ -67,20 +67,19 @@ async def post(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.put('/{contract_id}', status_code=status.HTTP_200_OK)
+@router.put("/{contract_id}", status_code=status.HTTP_200_OK)
 async def update(
-    *, contract: ContractUpdate, contract_id: int, db: Session = Depends(deps.get_db)
+    *,
+    contract: ContractUpdate,
+    contract_id: int,
+    db: AsyncSession = Depends(deps.get_db_async),  # noqa
 ) -> ContractModel:
     """
     Update whole contract by ID
     """
     try:
         validate_contract(contract.data)
-        db_obj = repository.get(db=db, obj_id=contract_id)
-        if db_obj is None:
-            raise NotFoundException("Unable to find contract with given ID")
-        else:
-            return repository.update(db_obj=db_obj, obj_in=contract, db=db)
+        return await repository_async.update(obj_id=contract_id, obj_in=contract, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:
@@ -89,14 +88,20 @@ async def update(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete('/{contract_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete(*, contract_id: int, db: Session = Depends(deps.get_db)):
+@router.delete("/{contract_id}", status_code=status.HTTP_200_OK)
+async def delete(
+    *,
+    contract_id: int,
+    db: AsyncSession = Depends(deps.get_db_async),  # noqa
+):
     """
     Delete contract by ID
     """
     try:
-        repository.remove(obj_id=contract_id, db=db)
+        return await repository_async.remove(obj_id=contract_id, db=db)
     except NotFoundException as e:
+        print(e)
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))

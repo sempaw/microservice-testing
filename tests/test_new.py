@@ -1,12 +1,12 @@
 import pytest
 
-from app.db.session import SessionLocal
+from app.db.session_async import AsyncSession
 
 
 @pytest.fixture()
 def db_setup():
     print("\nconnect to db")
-    return SessionLocal()
+    return AsyncSession()
 
 
 def test_db_exist(db_setup):

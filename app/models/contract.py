@@ -1,10 +1,9 @@
 from sqlalchemy import JSON, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..db.base_class import Base
+from app.db.base_class import Base
 
 
-# JSON Field psql
 class Contract(Base):
     id = Column(Integer, primary_key=True, index=True)
     consumer_id = Column(Integer, ForeignKey("user.id"), nullable=False)

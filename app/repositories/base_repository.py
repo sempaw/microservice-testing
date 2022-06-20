@@ -4,8 +4,8 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.core.settings import settings
 from app.db.base_class import Base
-from app.settings.route_settings import LIMIT_ENTITIES_DB_QUERY
 
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -31,7 +31,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db: Session,
         *,
         skip: Optional[int] = 0,
-        limit: Optional[int] = LIMIT_ENTITIES_DB_QUERY
+        limit: Optional[int] = settings.LIMIT_ENTITIES_DB_QUERY
     ) -> List[ModelType]:
         return db.query(self.model).offset(skip).limit(limit).all()
 

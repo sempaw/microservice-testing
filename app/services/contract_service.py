@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from app.repositories.contracts_repository import contract
+from app.repositories.contract_repository import contract
 
 
 class ContractService(object):

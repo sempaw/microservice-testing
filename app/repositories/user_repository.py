@@ -21,8 +21,5 @@ class UserRepository(BaseRepository[UserModel, UserCreate, UserUpdate]):
 
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def is_superuser(self, user: UserModel) -> bool:
-        return user.is_superuser
-
 
 user = UserRepository(UserModel)
