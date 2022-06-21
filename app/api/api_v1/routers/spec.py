@@ -8,12 +8,13 @@ from app.core.spec_validator import validate_spec
 from app.exceptions.not_found_exception import NotFoundException
 from app.exceptions.validation_exception import ValidationException
 from app.models.spec import Spec as SpecModel
-from app.repositories.spec_repository_async import spec as repository
 from app.schemas import SpecCreate
 from app.schemas.spec import SpecUpdate
+from app.services.spec_service import SpecService
 
 
 router = APIRouter(prefix="/specs", tags=["specs"])
+spec_service: SpecService = SpecService()
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
@@ -27,7 +28,7 @@ async def get_all(
     Fetch all specs
     """
     try:
-        return await repository.get_multi(skip=skip, limit=limit, db=db)
+        return await spec_service.get_multi(skip=skip, limit=limit, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -42,7 +43,7 @@ async def get_by_id(
     Fetch a single spec by ID
     """
     try:
-        return await repository.get(obj_id=spec_id, db=db)
+        return await spec_service.get_by_id(spec_id=spec_id, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -58,7 +59,7 @@ async def post(
     """
     try:
         validate_spec(data=spec.data)
-        return await repository.create(obj_in=spec, db=db)
+        return await spec_service.create(spec_create=spec, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:
@@ -79,7 +80,7 @@ async def update(
     """
     try:
         validate_spec(spec.data)
-        return await repository.update(obj_id=spec_id, obj_in=spec, db=db)
+        return await spec_service.update(spec_id=spec_id, spec_update=spec, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:
@@ -94,7 +95,7 @@ async def delete(*, spec_id: int, db: AsyncSession = Depends(deps.get_db_async))
     Delete spec by ID
     """
     try:
-        return await repository.remove(obj_id=spec_id, db=db)
+        return await spec_service.remove(spec_id=spec_id, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -112,13 +113,9 @@ async def mark_deprecated(
     Mark spec by given ID as deprecated
     """
     try:
-        # TODO: make it right way
-        spec = await repository.get(obj_id=spec_id, db=db)
-        spec_update = SpecUpdate()
-        spec_update.data = spec.data
-        spec_update.token = spec.token
-        spec_update.is_deprecated = is_deprecated
-        return await repository.update(db=db, obj_id=spec_id, obj_in=spec_update)
+        return await spec_service.mark_deprecated(
+            db=db, spec_id=spec_id, is_deprecated=is_deprecated
+        )
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

@@ -8,11 +8,12 @@ from app.core.contract_validator import validate_contract
 from app.exceptions.not_found_exception import NotFoundException
 from app.exceptions.validation_exception import ValidationException
 from app.models.contract import Contract as ContractModel
-from app.repositories.contract_repository_async import contract as repository_async
 from app.schemas.contract import ContractCreate, ContractUpdate
+from app.services.contract_service import ContractService
 
 
 router = APIRouter(prefix="/contracts", tags=["contracts"])
+contract_service: ContractService = ContractService()
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
@@ -26,7 +27,7 @@ async def get_multi(
     Fetch all contracts
     """
     try:
-        return await repository_async.get_multi(skip=skip, limit=limit, db=db)
+        return await contract_service.get_multi(db=db, skip=skip, limit=limit)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -42,7 +43,7 @@ async def get_by_id(
     """
     # service.get
     try:
-        return await repository_async.get(obj_id=contract_id, db=db)
+        return await contract_service.get_by_id(contract_id=contract_id, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -58,7 +59,7 @@ async def post(
     """
     try:
         validate_contract(data=contract.data)
-        return await repository_async.create(obj_in=contract, db=db)
+        return await contract_service.create(contract_create=contract, db=db)
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:
@@ -79,7 +80,9 @@ async def update(
     """
     try:
         validate_contract(contract.data)
-        return await repository_async.update(obj_id=contract_id, obj_in=contract, db=db)
+        return await contract_service.update(
+            contract_id=contract_id, contract_update=contract, db=db
+        )
     except NotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationException as e:
@@ -89,7 +92,7 @@ async def update(
 
 
 @router.delete("/{contract_id}", status_code=status.HTTP_200_OK)
-async def delete(
+async def remove(
     *,
     contract_id: int,
     db: AsyncSession = Depends(deps.get_db_async),  # noqa
@@ -98,7 +101,7 @@ async def delete(
     Delete contract by ID
     """
     try:
-        return await repository_async.remove(obj_id=contract_id, db=db)
+        return await contract_service.remove(contract_id=contract_id, db=db)
     except NotFoundException as e:
         print(e)
         raise HTTPException(status_code=404, detail=str(e))
