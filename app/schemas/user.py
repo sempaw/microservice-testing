@@ -1,25 +1,22 @@
 from typing import Optional
 
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel
 
 
 class UserBase(BaseModel):
     login: Optional[str]
-    password: Optional[SecretStr]
     token: Optional[str] = None
     is_superuser: bool = False
 
 
 class UserCreate(UserBase):
     login: str
-    password: SecretStr
+    password: str
     token: str
 
 
 class UserUpdate(UserBase):
-    login: str
-    password: SecretStr
-    token: str
+    ...
 
 
 class UserInDBBase(UserBase):
@@ -29,5 +26,9 @@ class UserInDBBase(UserBase):
         orm_mode = True
 
 
+class UserInDB(UserInDBBase):
+    password: str
+
+
 class User(UserInDBBase):
-    pass
+    ...

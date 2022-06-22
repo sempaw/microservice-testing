@@ -9,4 +9,4 @@ class ContractRepositoryAsync(
     ...
 
 
-contract = ContractRepositoryAsync(Contract)
+contract_repo_async = ContractRepositoryAsync(Contract)

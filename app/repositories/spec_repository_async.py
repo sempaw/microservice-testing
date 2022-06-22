@@ -7,4 +7,4 @@ class SpecRepositoryAsync(BaseRepositoryAsync[Spec, SpecCreate, SpecUpdate]):
     ...
 
 
-spec = SpecRepositoryAsync(Spec)
+spec_repo_async = SpecRepositoryAsync(Spec)

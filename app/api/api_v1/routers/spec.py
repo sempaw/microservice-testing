@@ -1,20 +1,20 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import deps
 from app.core.spec_validator import validate_spec
-from app.exceptions.not_found_exception import NotFoundException
-from app.exceptions.validation_exception import ValidationException
+from app.exceptions.invalid_data_error import InvalidDataError
+from app.exceptions.not_found_error import NotFoundError
 from app.models.spec import Spec as SpecModel
 from app.schemas import SpecCreate
 from app.schemas.spec import SpecUpdate
-from app.services.spec_service import SpecService
+from app.services.spec_service import spec_service
 
 
 router = APIRouter(prefix="/specs", tags=["specs"])
-spec_service: SpecService = SpecService()
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
@@ -29,7 +29,7 @@ async def get_all(
     """
     try:
         return await spec_service.get_multi(skip=skip, limit=limit, db=db)
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -44,7 +44,7 @@ async def get_by_id(
     """
     try:
         return await spec_service.get_by_id(spec_id=spec_id, db=db)
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -60,9 +60,9 @@ async def post(
     try:
         validate_spec(data=spec.data)
         return await spec_service.create(spec_create=spec, db=db)
-    except NotFoundException as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except ValidationException as e:
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="Unique constraint fault")
+    except InvalidDataError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -74,16 +74,18 @@ async def update(
     spec: SpecUpdate,
     spec_id: int,
     db: AsyncSession = Depends(deps.get_db_async),  # noqa
-) -> SpecModel:
+) -> None:
     """
     Update whole spec by ID
     """
     try:
         validate_spec(spec.data)
-        return await spec_service.update(spec_id=spec_id, spec_update=spec, db=db)
-    except NotFoundException as e:
+        await spec_service.update(spec_id=spec_id, spec_update=spec, db=db)
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except ValidationException as e:
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="Unique constraint fault")
+    except InvalidDataError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -96,7 +98,7 @@ async def delete(*, spec_id: int, db: AsyncSession = Depends(deps.get_db_async))
     """
     try:
         return await spec_service.remove(spec_id=spec_id, db=db)
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -108,15 +110,15 @@ async def mark_deprecated(
     spec_id: int,
     is_deprecated: bool,
     db: AsyncSession = Depends(deps.get_db_async),  # noqa
-) -> SpecModel:
+) -> None:
     """
     Mark spec by given ID as deprecated
     """
     try:
-        return await spec_service.mark_deprecated(
+        await spec_service.mark_deprecated(
             db=db, spec_id=spec_id, is_deprecated=is_deprecated
         )
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

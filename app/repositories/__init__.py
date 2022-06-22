@@ -1,3 +1,3 @@
-from .contract_repository import contract  # noqa
-from .spec_repository import spec  # noqa
-from .user_repository import user  # noqa
+from app.repositories.contract_repository_async import contract_repo_async  # noqa
+from app.repositories.spec_repository_async import spec_repo_async  # noqa
+from app.repositories.user_repository_async import user_repo_async  # noqa

@@ -1,42 +1,43 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.core import deps
 from app.core.contract_validator import validate_contract
-from app.exceptions.not_found_exception import NotFoundException
-from app.exceptions.validation_exception import ValidationException
+from app.exceptions.invalid_data_error import InvalidDataError
+from app.exceptions.not_found_error import NotFoundError
 from app.models.contract import Contract as ContractModel
 from app.schemas.contract import ContractCreate, ContractUpdate
-from app.services.contract_service import ContractService
+from app.services.contract_service import contract_service
 
 
 router = APIRouter(prefix="/contracts", tags=["contracts"])
-contract_service: ContractService = ContractService()
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def get_multi(
     *,
+    db=Depends(deps.get_db_async),  # noqa
     skip: Optional[int] = None,
     limit: Optional[int] = None,
-    db: AsyncSession = Depends(deps.get_db_async),  # noqa
 ) -> List[ContractModel]:
     """
     Fetch all contracts
     """
     try:
-        return await contract_service.get_multi(db=db, skip=skip, limit=limit)
-    except NotFoundException as e:
+        return await contract_service.get_multi(skip=skip, limit=limit, db=db)
+    except NotFoundError as e:
+        print(str(e))
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
+        print(str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/{contract_id}", status_code=status.HTTP_200_OK)
 async def get_by_id(
-    *, contract_id: int, db: AsyncSession = Depends(deps.get_db_async)  # noqa
+    *, db=Depends(deps.get_db_async), contract_id: int  # noqa
 ) -> Optional[ContractModel]:
     """
     Fetch a single contract by ID
@@ -44,7 +45,7 @@ async def get_by_id(
     # service.get
     try:
         return await contract_service.get_by_id(contract_id=contract_id, db=db)
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -52,7 +53,7 @@ async def get_by_id(
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post(
-    *, contract: ContractCreate, db: AsyncSession = Depends(deps.get_db_async)  # noqa
+    *, db=Depends(deps.get_db_async), contract: ContractCreate  # noqa
 ) -> ContractModel:
     """
     Post new contract
@@ -60,21 +61,21 @@ async def post(
     try:
         validate_contract(data=contract.data)
         return await contract_service.create(contract_create=contract, db=db)
-    except NotFoundException as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except ValidationException as e:
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="Unique constraint fault")
+    except InvalidDataError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.put("/{contract_id}", status_code=status.HTTP_200_OK)
+@router.put("/{contract_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update(
     *,
+    db=Depends(deps.get_db_async),  # noqa
     contract: ContractUpdate,
     contract_id: int,
-    db: AsyncSession = Depends(deps.get_db_async),  # noqa
-) -> ContractModel:
+) -> None:
     """
     Update whole contract by ID
     """
@@ -83,26 +84,28 @@ async def update(
         return await contract_service.update(
             contract_id=contract_id, contract_update=contract, db=db
         )
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except ValidationException as e:
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="Unique constraint fault")
+    except InvalidDataError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete("/{contract_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{contract_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove(
     *,
+    db=Depends(deps.get_db_async),  # noqa
     contract_id: int,
-    db: AsyncSession = Depends(deps.get_db_async),  # noqa
 ):
     """
     Delete contract by ID
     """
     try:
         return await contract_service.remove(contract_id=contract_id, db=db)
-    except NotFoundException as e:
+    except NotFoundError as e:
         print(e)
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
