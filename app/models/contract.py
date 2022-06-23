@@ -10,5 +10,5 @@ class Contract(Base):
     consumer = relationship("User", back_populates="contracts")
     spec_id = Column(Integer, ForeignKey("spec.id"), nullable=False)
     spec = relationship("Spec", back_populates="contracts_by_spec")
-    token = Column(String, nullable=False, unique=True)
+    token = Column(String, nullable=False)
     data = Column(JSON, nullable=False)

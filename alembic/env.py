@@ -3,8 +3,8 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+from app.core.settings import settings
 from app.db.base import Base  # noqa
-from app.settings.db_settings import SQLALCHEMY_DATABASE_URL
 
 
 target_metadata = Base.metadata  # type: ignore
@@ -25,7 +25,7 @@ if config.config_file_name is not None:
 
 
 def get_url():
-    return SQLALCHEMY_DATABASE_URL
+    return settings.SQLALCHEMY_DATABASE_URL
 
 
 # other values from the config, defined by the needs of env.py,

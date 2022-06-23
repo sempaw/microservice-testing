@@ -1,5 +1,5 @@
 class AuthService(object):
-    async def confirm_token(self, token) -> bool:
+    async def confirm_token(self, token: str) -> bool:
         pass
 
 

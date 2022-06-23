@@ -4,8 +4,8 @@ from pydantic import BaseModel
 
 
 class UserBase(BaseModel):
-    login: Optional[str]
-    token: Optional[str] = None
+    login: str
+    token: str
     is_superuser: bool = False
 
 

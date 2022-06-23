@@ -33,9 +33,7 @@ async def login(
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     return {
-        "access_token": create_access_token(
-            login=user.login, is_super_user=user.is_superuser, token=user.token
-        ),
+        "access_token": create_access_token(login=user.login),
         "token_type": "bearer",
     }
 

@@ -7,7 +7,7 @@ from app.core.settings import settings
 from app.data import CONTRACTS, SPECS
 from app.db import base  # noqa: F401
 from app.db.base_class import Base
-from app.db.session import engine
+from app.db.session_async import engine
 from app.repositories.contract_repository_async import contract_repo_async
 from app.repositories.spec_repository_async import spec_repo_async
 from app.repositories.user_repository_async import user_repo_async

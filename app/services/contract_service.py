@@ -1,16 +1,20 @@
 from typing import List, Optional
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.exceptions.no_access_error import NoAccessError
 from app.exceptions.not_found_error import NotFoundError
 from app.models.contract import Contract as ContractModel
+from app.models.user import User
 from app.repositories.contract_repository_async import (
     ContractRepositoryAsync,
     contract_repo_async,
 )
 from app.repositories.spec_repository_async import SpecRepositoryAsync, spec_repo_async
 from app.schemas import ContractCreate
-from app.schemas.contract import ContractUpdate
+from app.schemas.contract import ContractCreateDB
+from app.services.auth_service import auth_service
 from app.services.validation_service import validation_service
 
 
@@ -31,24 +35,25 @@ class ContractService(object):
         return await self._contract_repo.get_multi(db=db, skip=skip, limit=limit)
 
     async def create(
-        self, db: AsyncSession, contract_create: ContractCreate
+        self, db: AsyncSession, user: User, contract_create: ContractCreate
     ) -> ContractModel:
+        await auth_service.confirm_token(user.token)
         await validation_service.validate_contract(data=contract_create.data)
-        obj_id = await self._contract_repo.create(db=db, obj_in=contract_create)
+        obj_db_data = dict(jsonable_encoder(contract_create))
+        obj_db_data["token"] = user.token
+        obj_db = ContractCreateDB(**obj_db_data)
+        obj_id = await self._contract_repo.create(db=db, obj_in=obj_db)
         obj = await self._contract_repo.get(db=db, obj_id=obj_id)
         if obj is None:
             raise NotFoundError("Unable to find contract after creating it")
         return obj
 
-    async def update(
-        self, db: AsyncSession, contract_update: ContractUpdate, contract_id: int
-    ) -> None:
-        await validation_service.validate_contract(data=contract_update.data)
-        await self._contract_repo.update(
-            db=db, obj_in=contract_update, obj_id=contract_id
-        )
-
-    async def remove(self, db: AsyncSession, contract_id: int) -> None:
+    async def remove(self, db: AsyncSession, user: User, contract_id: int) -> None:
+        obj = await self._contract_repo.get(obj_id=contract_id, db=db)
+        if obj is None:
+            raise NotFoundError("Unable to find contract with given ID")
+        if obj.token != user.token or not user.is_superuser:
+            raise NoAccessError("No access to remove contract with given ID")
         await self._contract_repo.remove(obj_id=contract_id, db=db)
 
 

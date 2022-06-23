@@ -4,16 +4,18 @@ from pydantic import BaseModel
 
 
 class SpecBase(BaseModel):
-    token: str
     data: dict
     is_deprecated: bool
 
 
 class SpecCreate(SpecBase):
-    token: str
     data: dict
     provider_id: int
     is_deprecated: bool
+
+
+class SpecCreateDB(SpecCreate):
+    token: str
 
 
 class SpecUpdate(SpecBase):
@@ -23,6 +25,7 @@ class SpecUpdate(SpecBase):
 class SpecInDBBase(SpecBase):
     id: Optional[int] = None
     provider_id: Optional[int] = None
+    token: str
 
     class Config:
         orm_mode = True

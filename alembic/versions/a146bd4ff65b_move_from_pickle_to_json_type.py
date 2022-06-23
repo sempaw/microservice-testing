@@ -17,11 +17,11 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+async def upgrade():
     op.alter_column("contract", "data", existing_type=sa.JSON)
     op.alter_column("spec", "data", existing_type=sa.JSON)
 
 
-def downgrade():
+async def downgrade():
     op.alter_column("contract", "data", existing_type=sa.PickleType)
     op.alter_column("spec", "data", existing_type=sa.PickleType)
