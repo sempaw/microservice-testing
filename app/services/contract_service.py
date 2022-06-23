@@ -3,6 +3,7 @@ from typing import List, Optional
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.exceptions.deprecated_usage_error import DeprecatedUsageError
 from app.exceptions.no_access_error import NoAccessError
 from app.exceptions.not_found_error import NotFoundError
 from app.models.contract import Contract as ContractModel
@@ -39,6 +40,9 @@ class ContractService(object):
     ) -> ContractModel:
         await auth_service.confirm_token(user.token)
         await validation_service.validate_contract(data=contract_create.data)
+        spec = await self._spec_repo.get(db=db, obj_id=contract_create.spec_id)
+        if spec is None:
+            raise NotFoundError("Unable to make contract using spec with given ID")
         obj_db_data = dict(jsonable_encoder(contract_create))
         obj_db_data["token"] = user.token
         obj_db = ContractCreateDB(**obj_db_data)
@@ -46,6 +50,10 @@ class ContractService(object):
         obj = await self._contract_repo.get(db=db, obj_id=obj_id)
         if obj is None:
             raise NotFoundError("Unable to find contract after creating it")
+        if spec.is_deprecated:
+            raise DeprecatedUsageError(
+                f"Contract(ID: {obj_id}) created with usage of deprecated spec"
+            )
         return obj
 
     async def remove(self, db: AsyncSession, user: User, contract_id: int) -> None:

@@ -1,10 +1,11 @@
 import traceback
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
 
 from app.core import deps
+from app.exceptions.deprecated_usage_error import DeprecatedUsageError
 from app.exceptions.invalid_data_error import InvalidDataError
 from app.exceptions.no_access_error import NoAccessError
 from app.exceptions.not_found_error import NotFoundError
@@ -59,7 +60,8 @@ async def post(
     *,
     db=Depends(deps.get_db_async),
     user: User = Depends(user_service.get_current_user),
-    contract: ContractCreate,  # noqa
+    contract: ContractCreate,
+    response: Response,
 ) -> ContractModel:
     """
     Post new contract
@@ -71,6 +73,8 @@ async def post(
         raise HTTPException(status_code=400, detail="Integrity error occurred")
     except InvalidDataError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except DeprecatedUsageError as e:
+        raise HTTPException(status_code=222, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -17,12 +17,14 @@ depends_on = None
 
 
 def upgrade():
-    op.alter_column("contract", "token", unique=False)
-    op.alter_column("spec", "token", unique=False)
-    op.alter_column("user", "token", unique=False)
+    op.drop_constraint(
+        constraint_name="contract_token_key", table_name="contract", type_="unique"
+    )
+    op.drop_constraint(
+        constraint_name="spec_token_key", table_name="spec", type_="unique"
+    )
 
 
 def downgrade():
-    op.alter_column("contract", "token", unique=True)
-    op.alter_column("spec", "token", unique=True)
-    op.alter_column("user", "token", unique=True)
+    op.create_unique_constraint("contract_token_key", "contract", ["token"])
+    op.create_unique_constraint("spec_token_key", "spec", ["token"])
