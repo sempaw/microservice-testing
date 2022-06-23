@@ -44,7 +44,7 @@ class UserService(object):
                 algorithms=[settings.ALGORITHM],
                 options={"verify_aud": False},
             )
-            username: str = payload.get("sub")
+            username: str = payload.get("login")
             token_data = TokenData(username=username)
         except JWTError:
             raise CredentialsError("")

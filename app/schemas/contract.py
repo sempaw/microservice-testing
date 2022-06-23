@@ -9,15 +9,13 @@ class ContractBase(BaseModel):
 
 
 class ContractCreate(ContractBase):
-    token: str
     data: dict
     consumer_id: int
     spec_id: int
 
 
 class ContractUpdate(ContractBase):
-    token: str
-    data: dict
+    ...
 
 
 class ContractInDBBase(ContractBase):

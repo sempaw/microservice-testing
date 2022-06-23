@@ -30,24 +30,30 @@ async def authenticate(
     return user
 
 
-def create_access_token(*, sub: str) -> str:
+def create_access_token(*, login: str, is_super_user: bool, token: str) -> str:
     return _create_token(
         token_type="access_token",
         lifetime=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
-        sub=sub,
+        login=login,
+        is_super_user=is_super_user,
+        token=token,
     )
 
 
 def _create_token(
     token_type: str,
     lifetime: timedelta,
-    sub: str,
+    login: str,
+    is_super_user: bool,
+    token: str,
 ) -> str:
     payload = {}
     expire = datetime.utcnow() + lifetime
     payload["type"] = token_type
     payload["exp"] = expire  # type: ignore
     payload["iat"] = datetime.utcnow()  # type: ignore
-    payload["sub"] = str(sub)
+    payload["login"] = login
+    payload["is_super_user"] = is_super_user  # type: ignore
+    payload["token"] = token
 
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.ALGORITHM)

@@ -9,7 +9,6 @@ from app.exceptions.invalid_data_error import InvalidDataError
 from app.exceptions.not_found_error import NotFoundError
 from app.models.spec import Spec as SpecModel
 from app.schemas import SpecCreate
-from app.schemas.spec import SpecUpdate
 from app.services.spec_service import spec_service
 
 
@@ -58,28 +57,6 @@ async def post(
     """
     try:
         return await spec_service.create(spec_create=spec, db=db)
-    except IntegrityError:
-        raise HTTPException(status_code=400, detail="Unique constraint fault")
-    except InvalidDataError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.put("/{spec_id}", status_code=status.HTTP_200_OK)
-async def update(
-    *,
-    spec: SpecUpdate,
-    spec_id: int,
-    db: AsyncSession = Depends(deps.get_db_async),  # noqa
-) -> None:
-    """
-    Update whole spec by ID
-    """
-    try:
-        await spec_service.update(spec_id=spec_id, spec_update=spec, db=db)
-    except NotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
     except IntegrityError:
         raise HTTPException(status_code=400, detail="Unique constraint fault")
     except InvalidDataError as e:

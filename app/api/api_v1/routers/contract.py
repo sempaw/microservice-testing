@@ -7,7 +7,7 @@ from app.core import deps
 from app.exceptions.invalid_data_error import InvalidDataError
 from app.exceptions.not_found_error import NotFoundError
 from app.models.contract import Contract as ContractModel
-from app.schemas.contract import ContractCreate, ContractUpdate
+from app.schemas.contract import ContractCreate
 from app.services.contract_service import contract_service
 
 
@@ -59,30 +59,6 @@ async def post(
     """
     try:
         return await contract_service.create(contract_create=contract, db=db)
-    except IntegrityError:
-        raise HTTPException(status_code=400, detail="Unique constraint fault")
-    except InvalidDataError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.put("/{contract_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def update(
-    *,
-    db=Depends(deps.get_db_async),  # noqa
-    contract: ContractUpdate,
-    contract_id: int,
-) -> None:
-    """
-    Update whole contract by ID
-    """
-    try:
-        return await contract_service.update(
-            contract_id=contract_id, contract_update=contract, db=db
-        )
-    except NotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
     except IntegrityError:
         raise HTTPException(status_code=400, detail="Unique constraint fault")
     except InvalidDataError as e:

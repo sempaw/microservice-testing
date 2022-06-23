@@ -17,8 +17,6 @@ class SpecCreate(SpecBase):
 
 
 class SpecUpdate(SpecBase):
-    token: str
-    data: dict
     is_deprecated: bool
 
 
