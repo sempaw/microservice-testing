@@ -85,7 +85,7 @@ async def remove(
     db=Depends(deps.get_db_async),
     user: User = Depends(user_service.get_current_user),
     contract_id: int,
-):
+) -> None:
     """
     Delete contract by ID
     """
@@ -98,4 +98,18 @@ async def remove(
         raise HTTPException(status_code=403, detail=str(e))
     except Exception as e:
         print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/{contract_id}/depends_on_deprecated", status_code=status.HTTP_200_OK)
+async def depends_on_deprecated(
+    *, db=Depends(deps.get_db_async), contract_id: int
+) -> bool:
+    try:
+        return await contract_service.depends_on_deprecated(
+            db=db, contract_id=contract_id
+        )
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

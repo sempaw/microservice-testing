@@ -64,5 +64,14 @@ class ContractService(object):
             raise NoAccessError("No access to remove contract with given ID")
         await self._contract_repo.remove(obj_id=contract_id, db=db)
 
+    async def depends_on_deprecated(self, db: AsyncSession, contract_id: int) -> bool:
+        obj = await self._contract_repo.get(obj_id=contract_id, db=db)
+        if obj is None:
+            raise NotFoundError("Unable to find contract with given ID")
+        spec = await self._spec_repo.get(obj_id=obj.spec_id, db=db)
+        if spec is None:
+            raise NotFoundError("Unable to find spec which given contract depends on")
+        return spec.is_deprecated
+
 
 contract_service = ContractService()
