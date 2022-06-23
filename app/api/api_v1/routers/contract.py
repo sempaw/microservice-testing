@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from app.core import deps
-from app.core.contract_validator import validate_contract
 from app.exceptions.invalid_data_error import InvalidDataError
 from app.exceptions.not_found_error import NotFoundError
 from app.models.contract import Contract as ContractModel
@@ -59,7 +58,6 @@ async def post(
     Post new contract
     """
     try:
-        validate_contract(data=contract.data)
         return await contract_service.create(contract_create=contract, db=db)
     except IntegrityError:
         raise HTTPException(status_code=400, detail="Unique constraint fault")
@@ -80,7 +78,6 @@ async def update(
     Update whole contract by ID
     """
     try:
-        validate_contract(contract.data)
         return await contract_service.update(
             contract_id=contract_id, contract_update=contract, db=db
         )

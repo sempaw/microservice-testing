@@ -5,7 +5,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import deps
-from app.core.spec_validator import validate_spec
 from app.exceptions.invalid_data_error import InvalidDataError
 from app.exceptions.not_found_error import NotFoundError
 from app.models.spec import Spec as SpecModel
@@ -58,7 +57,6 @@ async def post(
     Post new spec
     """
     try:
-        validate_spec(data=spec.data)
         return await spec_service.create(spec_create=spec, db=db)
     except IntegrityError:
         raise HTTPException(status_code=400, detail="Unique constraint fault")
@@ -79,7 +77,6 @@ async def update(
     Update whole spec by ID
     """
     try:
-        validate_spec(spec.data)
         await spec_service.update(spec_id=spec_id, spec_update=spec, db=db)
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))

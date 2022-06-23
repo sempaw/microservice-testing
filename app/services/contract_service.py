@@ -2,7 +2,6 @@ from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.contract_validator import validate_contract
 from app.exceptions.not_found_error import NotFoundError
 from app.models.contract import Contract as ContractModel
 from app.repositories.contract_repository_async import (
@@ -12,6 +11,7 @@ from app.repositories.contract_repository_async import (
 from app.repositories.spec_repository_async import SpecRepositoryAsync, spec_repo_async
 from app.schemas import ContractCreate
 from app.schemas.contract import ContractUpdate
+from app.services.validation_service import validation_service
 
 
 class ContractService(object):
@@ -33,7 +33,7 @@ class ContractService(object):
     async def create(
         self, db: AsyncSession, contract_create: ContractCreate
     ) -> ContractModel:
-        validate_contract(data=contract_create.data)
+        await validation_service.validate_contract(data=contract_create.data)
         obj_id = await self._contract_repo.create(db=db, obj_in=contract_create)
         obj = await self._contract_repo.get(db=db, obj_id=obj_id)
         if obj is None:
@@ -43,7 +43,7 @@ class ContractService(object):
     async def update(
         self, db: AsyncSession, contract_update: ContractUpdate, contract_id: int
     ) -> None:
-        validate_contract(data=contract_update.data)
+        await validation_service.validate_contract(data=contract_update.data)
         await self._contract_repo.update(
             db=db, obj_in=contract_update, obj_id=contract_id
         )

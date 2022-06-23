@@ -3,12 +3,12 @@ from typing import List, Optional
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.spec_validator import validate_spec
 from app.exceptions.not_found_error import NotFoundError
 from app.models.spec import Spec as SpecModel
 from app.repositories.spec_repository_async import SpecRepositoryAsync, spec_repo_async
 from app.schemas import SpecCreate
 from app.schemas.spec import SpecUpdate
+from app.services.validation_service import validation_service
 
 
 class SpecService(object):
@@ -27,7 +27,7 @@ class SpecService(object):
         return await self._spec_repo.get_multi(db=db, skip=skip, limit=limit)
 
     async def create(self, db: AsyncSession, spec_create: SpecCreate) -> SpecModel:
-        validate_spec(data=spec_create.data)
+        await validation_service.validate_spec(data=spec_create.data)
         obj_id = await self._spec_repo.create(db=db, obj_in=spec_create)
         obj = await self._spec_repo.get(obj_id=obj_id, db=db)
         if obj is None:
@@ -37,7 +37,7 @@ class SpecService(object):
     async def update(
         self, db: AsyncSession, spec_update: SpecUpdate, spec_id: int
     ) -> None:
-        validate_spec(data=spec_update.data)
+        await validation_service.validate_spec(data=spec_update.data)
         await self._spec_repo.update(db=db, obj_in=spec_update, obj_id=spec_id)
 
     async def remove(self, db: AsyncSession, spec_id: int) -> None:
