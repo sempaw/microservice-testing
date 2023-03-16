@@ -1,0 +1,24 @@
+services:
+  registry:
+    container_name: registry
+    restart: unless-stopped
+    build: .
+    environment:
+      TZ: "Europe/Moscow"
+    ports:
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_started
+  db:
+    image: postgres:latest
+    container_name: psql
+    restart: always
+    environment:
+      POSTGRES_DB: "microservice-testing"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - ./ .database/postgres/data:/var/lib/postgresql/data
+    ports:
+      - "5432"
